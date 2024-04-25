@@ -35,6 +35,8 @@ app.get('/test', (req, res) => {
 app.use((req, res) => {
     return res.status(404).send('404 NOT FOUND')
 })
+
+
 const server = http.createServer(app);
 const io = socketIo(server, {
     cors: {
@@ -43,18 +45,15 @@ const io = socketIo(server, {
         allowedHeaders: ['Content-Type', 'Authorization'],
     }
 });
-// Socket.io code
 io.on('connection', (socket) => {
     console.log('A user connected');
 
     socket.on('disconnect', () => {
         console.log('User disconnected');
     });
-    socket.on("message", (...args) => {
+    socket.on("message300", (...args) => {
         console.log(args)
     });
-
-    // Handle custom events here
 });
 
 server.listen(3000, () => {
