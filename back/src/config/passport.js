@@ -14,9 +14,13 @@ exports.localStrategy = new LocalStrategy({usernameField: 'email'}, async (usern
     console.log(username)
     const user = await userModel.findOne({
         email: username,
-        password: password
+        // password: password
     }).exec()
-    if (!user) return done(null, false, 'Error in username or password')
+    if (!user) return done(null, false, 'Error in username')
+    const isPasswordValid = await user.comparePassword(password);
+    if (!isPasswordValid) {
+        return done(null, false, 'Error in username or password');
+    }
     return done(null, user)
 })
 
