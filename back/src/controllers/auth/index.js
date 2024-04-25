@@ -12,12 +12,14 @@ exports.signUp = async (req, res) => {
     try {
         // create(req, res)
         const {username, email, firstname, lastname, password} = req.body
+        role = 'user'
         const user = await userModel.create({
             username,
             email,
             password,
             firstname,
-            lastname
+            lastname,
+            role 
         })
         return !user
             ?

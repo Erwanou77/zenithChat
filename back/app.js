@@ -24,7 +24,9 @@ require('./src/routes')(app)
 
 // Use local and jwt strategy for passport
 passport.use(passportConfig.localStrategy);
-passport.use(passportConfig.jwtStrategy);
+// passport.use(passportConfig.jwtStrategy);
+passport.use('jwtUser', passportConfig.jwtUserStrategy);
+passport.use('jwtAdmin', passportConfig.jwtAdminStrategy);
 
 app.get('/', (req, res) => {
     return res.status(200).send('HELLO WORLD')
