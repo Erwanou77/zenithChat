@@ -4,6 +4,7 @@ const userModel = require('../models/user'),
     LocalStrategy = require('passport-local').Strategy,
     ExtractJwt = require('passport-jwt').ExtractJwt,
     JwtStrategy = require('passport-jwt').Strategy,
+    ExtractJWT = require('passport-jwt').ExtractJwt,
     passport = require('passport')
 const jwtOptions = {
     jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
