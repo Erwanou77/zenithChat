@@ -42,7 +42,11 @@ exports.jwtAdminStrategy = new JwtStrategy(jwtOptions, async (payload, done) => 
 });
 
 exports.checkIsAuthAdmin = (req, res, next) => {
-    passport.authenticate('jwtAdmin', { session: false })(req, res, next);
+    if (req.originalUrl.includes(process.env.API_PATH)){
+        passport.authenticate('jwtAdmin', { session: false })(req, res, next);
+    } else {
+        next()
+    }
 };
 
 exports.checkIsAuth = (req, res, next) => {
