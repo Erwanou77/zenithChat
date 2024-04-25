@@ -30,7 +30,7 @@ exports.localStrategy = new LocalStrategy({usernameField: 'email'}, async (usern
 exports.jwtUserStrategy = new JwtStrategy(jwtOptions, async (payload, done) => {
     console.log("jwtUserStrategy", payload);
     const user = await userModel.findById(payload._id);
-    if (!user || user.role !== 'user') return done(null, false);
+    if (!user) return done(null, false)
     return done(null, user);
 });
 
@@ -47,7 +47,7 @@ exports.checkIsAuthAdmin = (req, res, next) => {
 
 exports.checkIsAuth = (req, res, next) => {
     if (req.originalUrl.includes(process.env.API_PATH)){
-        passport.authenticate('jwtUser', {session: false})(req, res, next)
+        passport.authenticate('jwtUser', { session: false })(req, res, next)
     } else {
         next()
     }
