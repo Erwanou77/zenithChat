@@ -1,6 +1,8 @@
 const express = require("express"),
     cors = require("cors"),
     path = require("path"),
+    http = require('http'),
+    socketIo = require('socket.io'),
     mongoose = require("mongoose"),
     passport = require('passport'),
     passportConfig = require('./src/config/passport')
@@ -33,12 +35,29 @@ app.get('/test', (req, res) => {
 app.use((req, res) => {
     return res.status(404).send('404 NOT FOUND')
 })
-
-app.listen(3001, async (err) => {
-    if (err){
-        console.log('Error in server setup')
-    } else {
-        console.log(`Server running on at http://${process.env.SERVER_HOST}:${process.env.SERVER_PORT}`)
+const server = http.createServer(app);
+const io = socketIo(server, {
+    cors: {
+        origin: '*',
+        methods: ['GET', 'POST'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
     }
-})
+});
+// Socket.io code
+io.on('connection', (socket) => {
+    console.log('A user connected');
+
+    socket.on('disconnect', () => {
+        console.log('User disconnected');
+    });
+    socket.on("message", (...args) => {
+        console.log(args)
+    });
+
+    // Handle custom events here
+});
+
+server.listen(3000, () => {
+    console.log(`Server is running on port 3000`);
+});
 
