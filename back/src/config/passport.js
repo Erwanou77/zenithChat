@@ -37,6 +37,25 @@ exports.jwtUserStrategy = new JwtStrategy(jwtOptions, async (payload, done) => {
     if (!user) return done(null, false)
     return done(null, user);
 });
+exports.JwtSocketStrategy = new JwtStrategy({
+    jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+    jsonWebTokenOptions: {
+        ignoreExpiration: false,
+    },
+    secretOrKey: process.env.SECRET_PASS,
+}, (payload, done) => {
+    const user = userModel.findById(payload._id);
+    if (!user) return done(null, false)
+    return done(null, user);
+})
+
+passport.serializeUser(function (user, done) {
+    if (user) done(null, user);
+});
+
+passport.deserializeUser(function (id, done) {
+    done(null, id);
+});
 
 exports.jwtAdminStrategy = new JwtStrategy(jwtOptions, async (payload, done) => {
     console.log("jwtAdminStrategy", payload);

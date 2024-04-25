@@ -6,7 +6,7 @@ const express = require("express"),
     mongoose = require("mongoose"),
     passport = require('passport'),
     passportConfig = require('./src/config/passport')
-    dotenv = require("dotenv");
+dotenv = require("dotenv");
 dotenv.config({path: path.resolve(__dirname, '.env')});
 
 const app = express()
@@ -24,8 +24,8 @@ require('./src/routes')(app)
 
 // Use local and jwt strategy for passport
 passport.use(passportConfig.localStrategy);
-// passport.use(passportConfig.jwtStrategy);
-passport.use('jwtUser', passportConfig.jwtUserStrategy);
+passport.use(passportConfig.jwtStrategy);
+passport.use(passportConfig.JwtSocketStrategy);
 passport.use('jwtAdmin', passportConfig.jwtAdminStrategy);
 
 app.get('/', (req, res) => {
@@ -47,18 +47,25 @@ const io = socketIo(server, {
         allowedHeaders: ['Content-Type', 'Authorization'],
     }
 });
+
+const wrapMiddlewareForSocketIo = middleware => (socket, next) => middleware(socket.request, {}, next);
+io.use(wrapMiddlewareForSocketIo(passport.authenticate(['jwt'],{session: false})));
+
 io.on('connection', (socket) => {
+    // console.log(socket)
     console.log('A user connected');
+
+    socket.on("message", (message) => {
+        socket.broadcast.emit('message1', `server response: ${message}`);
+    });
 
     socket.on('disconnect', () => {
         console.log('User disconnected');
-    });
-    socket.on("message300", (...args) => {
-        console.log(args)
     });
 });
 
 server.listen(3000, () => {
     console.log(`Server is running on port 3000`);
 });
+
 

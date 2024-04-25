@@ -4,7 +4,7 @@ const expressRouter = require('express').Router(),
 
 module.exports = (app) => {
     // app.get('/users', userController.getAll)
-    expressRouter.get('/users', userController.getAll)
+    expressRouter.get('/users', JWTGuard.checkIsAuth, userController.getAll)
     expressRouter.get('/user/:id', JWTGuard.checkIsAuth, userController.getById)
     expressRouter.post('/user', userController.create)
     expressRouter.patch('/user/:id', JWTGuard.checkIsAuth, userController.update)
