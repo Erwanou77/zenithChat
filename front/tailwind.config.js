@@ -1,5 +1,6 @@
-/** @type {import('tailwindcss').Config} */
-export default {
+const colors = require('tailwindcss/colors');
+
+module.exports = {
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
@@ -12,10 +13,13 @@ export default {
         black: {
           100: '#2c2f33',
           200: '#23272a'
+        },
+        blurple: {
+          DEFAULT: '#7289DA',
+          dark: '#5f73bc'  // le hover
         }
       }
     },
   },
   plugins: [],
 }
-
