@@ -28,7 +28,8 @@ exports.create = async (req, res) => {
             email,
             password,
             firstname,
-            lastname
+            lastname,
+            user:"user",
         })
         return !user
             ?
