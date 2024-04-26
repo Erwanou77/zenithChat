@@ -5,6 +5,6 @@ module.exports = (app) => {
     require('./chatGroup')(app)
     require('./groupMembership')(app)
     // require('./groupMessage')(app)
-    // require('./message')(app)
+    require('./message')(app)
     require('./auth')(app)
 }

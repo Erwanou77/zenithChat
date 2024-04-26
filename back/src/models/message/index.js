@@ -6,10 +6,16 @@ const messageSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
+    recipientId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+        required: true
+    },
     content: String,
 }, {
     timestamps: true // Ajoute automatiquement les champs createdAt et updatedAt
 });
+
 
 const Message = mongoose.model('Message', messageSchema);
 

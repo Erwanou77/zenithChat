@@ -12,4 +12,3 @@ module.exports = (app) => {
     expressRouter.delete('/friendships/:id', JWTGuard.checkIsAuth, friendshipController.deleteFriendship);
     app.use('/api/v1', expressRouter)
 }
-
