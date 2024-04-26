@@ -1,13 +1,16 @@
 import { useState } from 'react';
 import './_register.scss';
 import api from '../../../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
     const [formData, setFormData] = useState({});
+    const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault()
         api.post('registration', formData)
+        navigate('/login');
     }
 
     const handleInputChange = (e) => {

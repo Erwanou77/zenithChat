@@ -1,13 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import api from '../../../services/api';
 import './_login.scss';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
   const [formData, setFormData] = useState({});
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    api.post('login', formData)
+    const res = await api.post('login', formData)
+    localStorage.setItem('user', JSON.stringify({token: res.message.token, _id: res.message.user._id, username: res.message.user.username }))
+    navigate('/home');
   }
 
   const handleInputChange = (e) => {
