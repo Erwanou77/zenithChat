@@ -10,7 +10,7 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault()
     const res = await api.post('login', formData)
-    localStorage.setItem('user', JSON.stringify({token: res.message.token, username: res.message.user.username}))
+    localStorage.setItem('user', JSON.stringify({token: res.message.token, _id: res.message.user._id, username: res.message.user.username }))
     navigate('/home');
   }
 
