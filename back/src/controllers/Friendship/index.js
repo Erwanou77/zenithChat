@@ -91,7 +91,7 @@ exports.getFriendRequestsByUser = async (req, res) => {
         if (!id) {
             return res.status(400).json({ message: 'User ID is required' });
         }
-        
+        console.log(req.user.id);
         // Vérifie si l'utilisateur connecté est l'utilisateur ciblé ou un administrateur
         if (id !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
@@ -115,13 +115,13 @@ exports.getFriendRequestsByUser = async (req, res) => {
         const customResponse = friendRequests.map(request => {
             const { _id, requesterId, addresseeId, status } = request;
             const isUserRequester = requesterId.toString() === id;
-            const friendId = isUserRequester ? addresseeId : requesterId;
-            const friendUsername = isUserRequester ? request.addresseeId.username : request.requesterId.username;
+            const friendId = isUserRequester ? requesterId : addresseeId;
+            const userRequester = isUserRequester ? addresseeId : requesterId;
             return {
                 friendRequestId: _id,
-                friendId,
-                friendUsername,
-                status
+                UserRequester: userRequester,
+                friendId: friendId,
+                status: status
             };
         });
 
@@ -130,6 +130,7 @@ exports.getFriendRequestsByUser = async (req, res) => {
         res.status(500).json({ message: 'Error retrieving friend requests by user ID', error });
     }
 };
+
 
 
 
