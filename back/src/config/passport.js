@@ -20,7 +20,7 @@ exports.localStrategy = new LocalStrategy({usernameField: 'email'}, async (usern
     if (!user) return done(null, false, 'Error in username')
     const isPasswordValid = await user.comparePassword(password);
     if (!isPasswordValid) {
-        return done(null, false, 'Error in username or password');
+        return done(null, false, 'Error in password');
     }
     return done(null, user)
 })

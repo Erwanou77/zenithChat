@@ -111,6 +111,10 @@ exports.delete = async (req, res) => {
     try {
         const { id } = req.params
         console.log(id)
+        // Vérifie si l'utilisateur connecté est l'utilisateur ciblé ou un administrateur
+        if (id !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
+        }
         const user = await userModel.findByIdAndDelete(id)
         console.log(user)
         return !user
