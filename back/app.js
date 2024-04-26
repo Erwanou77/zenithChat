@@ -6,10 +6,12 @@ const express = require("express"),
     mongoose = require("mongoose"),
     passport = require('passport'),
     passportConfig = require('./src/config/passport'),
-    friendshipModel = require("./src/models/friendship"),
+    chatGroupModel = require("./src/models/chatGroup"),
     userModel = require("./src/models/user"),
+    messageModel = require("./src/models/message"),
 dotenv = require("dotenv");
 const logger = require("nodemon/lib/utils");
+const groupMessageModel = require("./src/models/groupMessage");
 dotenv.config({path: path.resolve(__dirname, '.env')});
 
 const app = express()
@@ -60,21 +62,35 @@ io.on('connection', (socket) => {
     if (socket.handshake.query.id != undefined){
         connectedUsers.push(socket);
         const id=socket.handshake.query.id
-        const result = async (id) => await userModel.findOne({_id:id})
-        const user=result(id).then(user => {
+        const resultuser = async (id) => await userModel.findOne({_id:id})
+        resultuser(id).then(user => {
             if (user) {
                 socket.on("message", (message) => {
-                    socket.broadcast.emit(user.username, `server response: ${message}`);
+                    const resultchanelgroup = async (name) => await chatGroupModel.findOne({name:name})
+                    const resultchaneluser = async (name) => await userModel.findOne({username:name})
+                    resultchaneluser(message.by).then(sender => {
+                        message.type!="user"?
+                            resultchanelgroup(message.to).then(group => {
+                             if (group) {
+                                 const newGroupMessage = async (id,senderId,message)=> await groupMessageModel.create({ groupId:id, senderId:senderId, content:message })
+                                 newGroupMessage(group._id,sender._id,message.message)
+                                }
+                            }):
+                            resultchaneluser(message.to).then(user => {
+                                if (user) {
+                                    console.log(user)
+                                    const newMessage = async (id,senderId,message)=> await messageModel.create({ senderId:id, recipientId:senderId, content:message })
+                                    newMessage(user._id,sender._id,message.message)
+                                }
+                            })
+                    });
+                    socket.broadcast.emit((message.type=="user"?message.by:`groupe_${message.to}`), {
+                        by:message.by,
+                        message:message.message
+                    });
                 });
-            } else {
-                console.log("User not found");
-                // handle the case where the user is not found
             }
         })
-            .catch(err => {
-                console.error("Error occurred:", err);
-                // handle the error in an appropriate way
-            });
     }
 
     socket.on('disconnect', () => {
