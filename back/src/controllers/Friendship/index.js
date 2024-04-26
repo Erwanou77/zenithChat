@@ -85,6 +85,54 @@ exports.getFriendRequestsByAddresseeId = async (req, res) => {
     }
 };
 
+exports.getFriendRequestsByUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+        
+        // Vérifie si l'utilisateur connecté est l'utilisateur ciblé ou un administrateur
+        if (id !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
+        }
+
+        // Recherche des demandes d'amis où l'utilisateur spécifié est soit le demandeur soit le destinataire
+        const friendRequests = await friendshipModel.find({
+            $or: [
+                { requesterId: id },
+                { addresseeId: id }
+            ]
+        }).populate({
+            path: 'requesterId',
+            select: 'username'
+        }).populate({
+            path: 'addresseeId',
+            select: 'username'
+        });
+
+        // Construire une réponse personnalisée
+        const customResponse = friendRequests.map(request => {
+            const { _id, requesterId, addresseeId, status } = request;
+            const isUserRequester = requesterId.toString() === id;
+            const friendId = isUserRequester ? addresseeId : requesterId;
+            const friendUsername = isUserRequester ? request.addresseeId.username : request.requesterId.username;
+            return {
+                friendRequestId: _id,
+                friendId,
+                friendUsername,
+                status
+            };
+        });
+
+        res.json(customResponse);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving friend requests by user ID', error });
+    }
+};
+
+
+
 
 exports.createFriendship = async (req, res) => {
     try {
