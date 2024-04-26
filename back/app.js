@@ -5,8 +5,11 @@ const express = require("express"),
     socketIo = require('socket.io'),
     mongoose = require("mongoose"),
     passport = require('passport'),
-    passportConfig = require('./src/config/passport')
+    passportConfig = require('./src/config/passport'),
+    friendshipModel = require("./src/models/friendship"),
+    userModel = require("./src/models/user"),
 dotenv = require("dotenv");
+const logger = require("nodemon/lib/utils");
 dotenv.config({path: path.resolve(__dirname, '.env')});
 
 const app = express()
@@ -51,16 +54,31 @@ const io = socketIo(server, {
 const wrapMiddlewareForSocketIo = middleware => (socket, next) => middleware(socket.request, {}, next);
 io.use(wrapMiddlewareForSocketIo(passport.authenticate(['jwt'],{session: false})));
 
-io.on('connection', (socket) => {
-    // console.log(socket)
-    console.log('A user connected');
+let connectedUsers = [];
 
-    socket.on("message", (message) => {
-        socket.broadcast.emit('message1', `server response: ${message}`);
-    });
+io.on('connection', (socket) => {
+    if (socket.handshake.query.id != undefined){
+        connectedUsers.push(socket);
+        const id=socket.handshake.query.id
+        const result = async (id) => await userModel.findOne({_id:id})
+        const user=result(id).then(user => {
+            if (user) {
+                socket.on("message", (message) => {
+                    socket.broadcast.emit(user.username, `server response: ${message}`);
+                });
+            } else {
+                console.log("User not found");
+                // handle the case where the user is not found
+            }
+        })
+            .catch(err => {
+                console.error("Error occurred:", err);
+                // handle the error in an appropriate way
+            });
+    }
 
     socket.on('disconnect', () => {
-        console.log('User disconnected');
+        connectedUsers = connectedUsers.filter(socket1 => socket1.id !== socket.id);
     });
 });
 
