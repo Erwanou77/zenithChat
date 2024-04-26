@@ -1,5 +1,5 @@
 const expressRouter = require('express').Router(),
-      messageController = require('../../controllers/Message');
+      messageController = require('../../controllers/Message'),
       JWTGuard = require('../../config/passport');
 
 module.exports = (app) => {
