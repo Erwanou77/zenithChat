@@ -1,4 +1,5 @@
 const friendshipModel = require('../../models/friendship');
+const { login } = require('../auth');
 
 /**
  * @description get all demande amis
@@ -91,7 +92,7 @@ exports.updateFriendship = async (req, res) => {
         }
         const friendship = await friendshipModel.findById(id);
         // Vérifie si l'utilisateur connecté est l'utilisateur ciblé ou un administrateur
-        if ((friendship.requesterId !== req.user.id && friendship.addresseeId !== req.user.id) && req.user.role !== 'admin') {
+        if (friendship.requesterId.toString() !== req.user.id && friendship.addresseeId.toString() !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
         }
         const updatedFriendship = await friendshipModel.findByIdAndUpdate(id, req.body, { new: true });
@@ -112,7 +113,7 @@ exports.deleteFriendship = async (req, res) => {
         }
         const friendship = await friendshipModel.findById(id);
         // Vérifie si l'utilisateur connecté est l'utilisateur ciblé ou un administrateur
-        if ((friendship.requesterId !== req.user.id && friendship.addresseeId !== req.user.id) && req.user.role !== 'admin') {
+        if (friendship.requesterId.toString() !== req.user.id && friendship.addresseeId.toString() !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
         }
         const deletedFriendship = await friendshipModel.findByIdAndDelete(id);
