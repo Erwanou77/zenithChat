@@ -10,7 +10,7 @@ const { login } = require('../auth');
 
 exports.getAllFriendships = async (req, res) => {
     try {
-        const friendships = await friendshipModel.find();
+        const friendships = await friendshipModel.find().populate('requesterId').populate('addresseeId');
         res.json(friendships);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving friendships', error });
@@ -66,14 +66,11 @@ exports.getFriendRequestsByAddresseeId = async (req, res) => {
             return res.status(400).json({ message: 'Addressee ID is required' });
         }
         
-        // Récupère l'utilisateur correspondant à l'addresseeId
-        const addressee = await userModel.findById(addresseeId);
-        
         // Vérifie si l'utilisateur connecté est l'utilisateur ciblé ou un administrateur
         if (addresseeId !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
         }
-        
+        console.log(addresseeId);
         // const friendRequests = await friendshipModel.find({ addresseeId }).populate('requesterId').populate('addresseeId');
         const friendRequests = await friendshipModel.find({ addresseeId }).populate({
             path: 'requesterId',
