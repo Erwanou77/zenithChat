@@ -121,7 +121,7 @@ exports.updateGroupMessage = async (req, res) => {
 exports.deleteGroupMessage = async (req, res) => {
     try {
         const { id } = req.params;
-
+        
         // Vérification si le message existe et appartient à l'utilisateur
         const existingGroupMessage = await groupMessageModel.findById(id);
         if (!existingGroupMessage || existingGroupMessage.senderId !== req.user) {
