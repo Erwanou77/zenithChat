@@ -84,7 +84,7 @@ io.on('connection', (socket) => {
                                 }
                             })
                     });
-                    socket.broadcast.emit((message.type=="user"?message.by:`groupe_${message.to}`), {
+                    socket.emit((message.type=="user"?message.to:`groupe_${message.to}`), {
                         by:message.by,
                         message:message.message
                     });

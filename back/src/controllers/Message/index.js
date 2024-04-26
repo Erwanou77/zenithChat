@@ -53,6 +53,9 @@ exports.getConversation = async (req, res) => {
                 { senderId: senderId, recipientId: recipientId },
                 { senderId: recipientId, recipientId: senderId }
             ]
+        }).populate({
+            path: 'recipientId',
+            select: 'username'
         });
         
 

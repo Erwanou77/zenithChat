@@ -112,20 +112,20 @@ exports.getFriendRequestsByUser = async (req, res) => {
         });
 
         // Construire une réponse personnalisée
-        const customResponse = friendRequests.map(request => {
-            const { _id, requesterId, addresseeId, status } = request;
-            const isUserRequester = requesterId.toString() === id;
-            const friendId = isUserRequester ? requesterId : addresseeId;
-            const userRequester = isUserRequester ? addresseeId : requesterId;
-            return {
-                friendRequestId: _id,
-                UserRequester: userRequester,
-                friendId: friendId,
-                status: status
-            };
-        });
+        // const customResponse = friendRequests.map(request => {
+        //     const { _id, requesterId, addresseeId, status } = request;
+        //     const isUserRequester = requesterId.toString() === id;
+        //     const friendId = isUserRequester ? requesterId : addresseeId;
+        //     const userRequester = isUserRequester ? addresseeId : requesterId;
+        //     return {
+        //         friendRequestId: _id,
+        //         UserRequester: userRequester,
+        //         friendId: friendId,
+        //         status: status
+        //     };
+        // });
 
-        res.json(customResponse);
+        res.json(friendRequests);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving friend requests by user ID', error });
     }
