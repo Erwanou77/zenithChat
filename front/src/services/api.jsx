@@ -1,10 +1,13 @@
 const BASE_URL = 'http://localhost:3000/api/v1';
 
-const request = async (url, method = 'GET', data = null) => {
+const request = async (url, method = 'GET', data = null, customHeaders = {}) => {
   try {
     const options = {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 
+        'Content-Type': 'application/json',
+        ...customHeaders
+      },
     };
 
     if (data) options.body = JSON.stringify(data);
@@ -21,10 +24,10 @@ const request = async (url, method = 'GET', data = null) => {
 };
 
 const api = {
-  get: (url) => request(url),
-  post: (url, data) => request(url, 'POST', data),
-  patch: (url, data) => request(url, 'PATCH', data),
-  delete: (url) => request(url, 'DELETE'),
+  get: (url, customHeaders) => request(url, 'GET', null, customHeaders),
+  post: (url, data, customHeaders) => request(url, 'POST', data, customHeaders),
+  patch: (url, data, customHeaders) => request(url, 'PATCH', data, customHeaders),
+  delete: (url, customHeaders) => request(url, 'DELETE', null, customHeaders),
 };
 
 export default api;
