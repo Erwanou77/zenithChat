@@ -1,6 +1,7 @@
 const chatGroupModel = require('../../models/chatGroup');
 const groupMembershipModel = require('../../models/groupMembership');
 const groupMessageModel = require('../../models/groupMessage');
+const userModel = require('../../models/user')
 
 /**
  * @description get all chat Group
@@ -39,22 +40,38 @@ exports.createChatGroup = async (req, res) => {
             return res.status(400).json({ message: 'Name is required for creating chat group' });
         }
 
+        // Vérifie si un groupe avec le même nom existe déjà
+        const existingGroup = await chatGroupModel.findOne({ name });
+        if (existingGroup) {
+            return res.status(400).json({ message: 'A chat group with this name already exists' });
+        }
+
+        // Vérifie si un utilisateur avec le même nom existe déjà
+        const existingUser = await userModel.findOne({ username: name });
+        if (existingUser) {
+            return res.status(400).json({ message: 'An user with this username already exists' });
+        }
+
+        // Crée le nouveau groupe de discussion
         const newChatGroup = await chatGroupModel.create(req.body);
 
-        const userid  = req.user,
-              groupid = newChatGroup,
-              role    = "admin";
+        // Crée l'entrée dans la table de membership pour l'utilisateur créateur
+        const { _id: userid } = req.user,
+              { _id: groupid } = newChatGroup,
+              role = "admin";
 
-        const user = await groupMembershipModel.create({
+        await groupMembershipModel.create({
             userid,
             groupid,
             role,
-        })
+        });
+
         res.status(201).json(newChatGroup);
     } catch (error) {
         res.status(500).json({ message: 'Error creating chat group', error });
     }
 };
+
 
 exports.updateChatGroup = async (req, res) => {
     try {

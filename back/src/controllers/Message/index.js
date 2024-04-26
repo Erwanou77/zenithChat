@@ -50,10 +50,11 @@ exports.getConversation = async (req, res) => {
         // Recherche les messages entre l'expéditeur et le destinataire spécifiés
         const conversation = await messageModel.find({
             $or: [
-                { senderId, recipientId, recipientId: senderId },
-                { senderId: senderId, recipientId: recipientId } // Pour prendre les messages des deux côtés
+                { senderId: senderId, recipientId: recipientId },
+                { senderId: recipientId, recipientId: senderId }
             ]
         });
+        
 
         // Vérifie s'il y a des messages dans la conversation
         if (!conversation || conversation.length === 0) {

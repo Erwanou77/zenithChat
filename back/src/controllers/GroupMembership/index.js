@@ -13,7 +13,10 @@ const groupMessageModel = require('../../models/groupMessage');
 
 exports.getAllGroupMemberships = async (req, res) => {
     try {
-        const groupMemberships = await groupMembershipModel.find();
+        const groupMemberships = await groupMembershipModel.find().populate({
+            path: 'senderId',
+            select: 'username'
+        });
         res.json(groupMemberships);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving group memberships', error });
@@ -26,7 +29,10 @@ exports.getGroupMembershipById = async (req, res) => {
         if (!id) {
             return res.status(400).json({ message: 'Group membership ID is required' });
         }
-        const groupMembership = await groupMembershipModel.findById(id);
+        const groupMembership = await groupMembershipModel.findById(id).populate({
+            path: 'senderId',
+            select: 'username'
+        });
         if (!groupMembership) return res.status(404).json({ message: 'Group membership not found' });
         res.json(groupMembership);
     } catch (error) {
@@ -43,7 +49,10 @@ exports.getGroupMembershipByGroupId = async (req, res) => {
             return res.status(400).json({ message: 'Both groupId are required' });
         }
 
-        const groupMembership = await groupMembershipModel.findOne({ groupId });
+        const groupMembership = await groupMembershipModel.findOne({ groupId }).populate({
+            path: 'senderId',
+            select: 'username'
+        });
 
         if (!groupMembership) {
             return res.status(404).json({ message: 'Group membership not found' });
