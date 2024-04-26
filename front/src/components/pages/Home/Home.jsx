@@ -49,7 +49,7 @@ const Home = () => {
         }
     });
     
-    socket.on(dataUser.username, (message) => setMessage(previous => [...previous, message]))
+    socket.on(dataUser.username, (message) => setBoolChangeMessage(true))
     // if (Object.keys(friend).length > 0) {
     //     socket.on(friend.requesterId.username, (message) => setMessage(previous => [...previous, message]))
     // }
@@ -57,15 +57,15 @@ const Home = () => {
 
     const handleKeyDown = (e) => {
         if(e.key === "Enter" && e.target.value != "") {
-            console.log(e.target.value);
             socket.emit('message', {
                 type: 'user',
-                to: friend.requesterId.username, 
+                to: (friend.requesterId.username === dataUser.username ? friend.addresseeId.username : friend.requesterId.username),
                 by: dataUser.username,
                 message: e.target.value
             })
             setMessage(previous => [...previous, e.target.value])
             setBoolChangeMessage(true)
+            console.log(friend)
             e.target.value = "";
         }else {
             console.log('Aucune donnée');
@@ -129,7 +129,7 @@ const Home = () => {
                                         <Status status={4} size={'w-2.5 h-2.5'} />
                                     </Avatars>
                                     <h2 className='text-white'>
-                                        {element.recipientId.username}
+                                        {element.recipientId===undefined?null:element.recipientId.username}
                                         <button type="button" className="flex items-center justify-between w-full font-medium rtl:text-right text-greyple dark:focus:ring-gray-800 dark:border-black-200 dark:text-black-400">
                                             <p>{element.content}</p>
                                         </button>
