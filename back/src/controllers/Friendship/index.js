@@ -43,7 +43,16 @@ exports.getFriendRequestsByRequesterId = async (req, res) => {
         if (requesterId !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
         }
-        const friendRequests = await friendshipModel.find({ requesterId });
+        const friendRequests = await friendshipModel.find({ requesterId }).populate({
+            path: 'requesterId',
+            select: 'username'
+        }).populate({
+            path: 'addresseeId',
+            select: 'username'
+        });
+
+        // const friendRequests = await friendshipModel.find({ requesterId }).populate('requesterId').populate('addresseeId');
+        
         res.json(friendRequests);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving friend requests by requester ID', error });
@@ -56,16 +65,29 @@ exports.getFriendRequestsByAddresseeId = async (req, res) => {
         if (!addresseeId) {
             return res.status(400).json({ message: 'Addressee ID is required' });
         }
+        
+        // Récupère l'utilisateur correspondant à l'addresseeId
+        const addressee = await userModel.findById(addresseeId);
+        
         // Vérifie si l'utilisateur connecté est l'utilisateur ciblé ou un administrateur
         if (addresseeId !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
         }
-        const friendRequests = await friendshipModel.find({ addresseeId });
+        
+        // const friendRequests = await friendshipModel.find({ addresseeId }).populate('requesterId').populate('addresseeId');
+        const friendRequests = await friendshipModel.find({ addresseeId }).populate({
+            path: 'requesterId',
+            select: 'username'
+        }).populate({
+            path: 'addresseeId',
+            select: 'username'
+        });
         res.json(friendRequests);
     } catch (error) {
         res.status(500).json({ message: 'Error retrieving friend requests by addressee ID', error });
     }
 };
+
 
 exports.createFriendship = async (req, res) => {
     try {
