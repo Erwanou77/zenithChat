@@ -116,7 +116,7 @@ exports.updateMessage = async (req, res) => {
         }
         const { senderId, recipientId } = await messageModel.findById(id);
 
-        if (senderId !== req.user.id && recipientId !== req.user.id && req.user.role !== 'admin') {
+        if (senderId.toString() !== req.user.id && recipientId.toString() !== req.user.id && req.user.role !== 'admin') {
             return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
         }
 
