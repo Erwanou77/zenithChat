@@ -9,6 +9,9 @@ module.exports = (app) => {
     // Récupérer un groupe de discussion par son ID
     expressRouter.get('/chatGroups/:id', JWTGuard.checkIsAuth, chatGroupController.getChatGroupById);
     
+    // Récupérer un groupe de discussion par l'idUSER
+    expressRouter.get('/chatGroups/user/:id', JWTGuard.checkIsAuth, chatGroupController.getChatGroupsByUser);
+
     // Créer un nouveau groupe de discussion
     expressRouter.post('/chatGroups', JWTGuard.checkIsAuth, chatGroupController.createChatGroup);
 

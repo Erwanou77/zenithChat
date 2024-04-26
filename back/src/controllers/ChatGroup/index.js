@@ -32,6 +32,32 @@ exports.getChatGroupById = async (req, res) => {
     }
 };
 
+exports.getChatGroupsByUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        if (!id) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        if (id !== req.user.id && req.user.role !== 'admin') {
+            return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
+        }
+
+        // Recherche dans la collection groupMembership pour les groupes auxquels l'utilisateur appartient
+        const userGroups = await groupMembershipModel.find({ userid: id }).select('groupid');
+
+        // Récupération des détails de chaque groupe de discussion
+        const chatGroups = await Promise.all(userGroups.map(async (userGroup) => {
+            const group = await chatGroupModel.findById(userGroup.groupid);
+            return group;
+        }));
+
+        res.json(chatGroups);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving chat groups by user ID', error });
+    }
+};
+
 exports.createChatGroup = async (req, res) => {
     try {
         const { name } = req.body;
