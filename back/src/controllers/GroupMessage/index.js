@@ -1,4 +1,6 @@
 const groupMessageModel = require('../../models/groupMessage');
+const groupMembershipModel = require('../../models/groupMembership');
+const chatGroupModel = require('../../models/chatGroup');
 
 /**
  * @description get all message group
@@ -27,6 +29,42 @@ exports.getGroupMessageById = async (req, res) => {
     }
 };
 
+exports.getGroupMessagesByGroupId = async (req, res) => {
+    try {
+        const { groupId } = req.params;
+        const userId = req.user.id; // ID de l'utilisateur authentifié
+
+        if (!groupId) {
+            return res.status(400).json({ message: 'Group ID is required' });
+        }
+
+        // Vérifie si l'utilisateur est membre du groupe
+        const isUserMember = await groupMembershipModel.exists({ userId, groupId });
+
+        // Si l'utilisateur n'est pas membre et n'est pas administrateur, renvoie une erreur Unauthorized
+        if (!isUserMember && req.user.role !== 'admin') {
+            return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
+        }
+
+        const groupMessages = await groupMessageModel.find({ groupId }).populate({
+            path: 'senderId',
+            select: ['_id', 'username']
+        });
+        
+
+        // Vérifie s'il n'y a aucun message pour ce groupe
+        if (groupMessages.length === 0) {
+            return res.status(404).json({ message: 'No group messages found for the specified group ID' });
+        }
+
+        // Renvoie les messages du groupe
+        res.json(groupMessages);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving group messages by group ID', error });
+    }
+};
+
+
 exports.createGroupMessage = async (req, res) => {
     try {
         const { groupId, content } = req.body;
@@ -35,6 +73,15 @@ exports.createGroupMessage = async (req, res) => {
         // Vérification des champs obligatoires
         if (!groupId || !content) {
             return res.status(400).json({ message: 'Group ID and Content are required' });
+        }
+
+        const userId = senderId; // ID de l'utilisateur authentifié
+        // Vérifie si l'utilisateur est membre du groupe
+        const isUserMember = await groupMembershipModel.exists({ userId, groupId });
+
+        // Si l'utilisateur n'est pas membre et n'est pas administrateur, renvoie une erreur Unauthorized
+        if (!isUserMember && req.user.role !== 'admin') {
+            return res.status(403).json({ statusCode: 403, message: 'Unauthorized' });
         }
 
         const newGroupMessage = await groupMessageModel.create({ groupId, senderId, content });
@@ -52,10 +99,12 @@ exports.updateGroupMessage = async (req, res) => {
 
         // Vérification si le message existe et appartient à l'utilisateur
         const existingGroupMessage = await groupMessageModel.findById(id);
-        if (!existingGroupMessage || existingGroupMessage.senderId !== req.user) {
-            return res.status(404).json({ message: 'Group message not found or does not belong to the user' });
+        if (!existingGroupMessage) {
+            return res.status(404).json({ message: 'Group message not found' });
         }
-
+        if (existingGroupMessage.senderId.toString() !== req.user.id) {
+            return res.status(404).json({ message: 'does not belong to the user' });
+        }
         // Mise à jour du message de groupe
         const updatedGroupMessage = await groupMessageModel.findByIdAndUpdate(id, { content }, { new: true });
         if (!updatedGroupMessage) {
@@ -71,7 +120,15 @@ exports.updateGroupMessage = async (req, res) => {
 
 exports.deleteGroupMessage = async (req, res) => {
     try {
-        const deletedGroupMessage = await groupMessageModel.findByIdAndDelete(req.params.id);
+        const { id } = req.params;
+
+        // Vérification si le message existe et appartient à l'utilisateur
+        const existingGroupMessage = await groupMessageModel.findById(id);
+        if (!existingGroupMessage || existingGroupMessage.senderId !== req.user) {
+            return res.status(404).json({ message: 'Group message not found or does not belong to the user' });
+        }
+
+        const deletedGroupMessage = await groupMessageModel.findByIdAndDelete(id);
         if (!deletedGroupMessage) return res.status(404).json({ message: 'Group message not found' });
         res.json({ message: 'Group message deleted successfully' });
     } catch (error) {

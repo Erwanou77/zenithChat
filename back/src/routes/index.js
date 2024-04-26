@@ -4,7 +4,7 @@ module.exports = (app) => {
     require('./Friendship')(app)
     require('./chatGroup')(app)
     require('./groupMembership')(app)
-    // require('./groupMessage')(app)
+    require('./groupMessage')(app)
     require('./message')(app)
     require('./auth')(app)
 }
